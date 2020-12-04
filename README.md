@@ -1,2 +1,8 @@
-# gugu
-Test für Yaml und Co
+---
+title: "Geld und Geschichte"
+date: "`r Sys.Date()`"
+---
+
+## Überblick
+
+## Idee
