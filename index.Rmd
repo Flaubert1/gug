@@ -1,6 +1,8 @@
 ---
-title: "index"
+title: "Finanzanalyse"
+date: "`r Sys.Date()`"
 ---
 
-## Startseite
+## Überblick
 
+## Idee
