@@ -5,5 +5,11 @@ navbar:
   left:
     - text: "Home"
       href: index.html
-    - text: "Seite 1"
-      href: page1.html
+    - text: "Wealth Levels"
+      href: wealthlevels.html
+output:
+  html_document:
+    css: "bootstrap.css"
+  
+  
+#  theme: darkly
