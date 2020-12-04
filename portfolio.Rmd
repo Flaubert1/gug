@@ -1,0 +1,103 @@
+---
+title: "Portfolio"
+date: "`r Sys.Date()`"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message = FALSE,
+                      warning = FALSE)
+
+# for scraping
+# library(rvest)
+# blanket import for core tidyverse packages
+library(tidyverse)
+# tidy financial analysis 
+library(tidyquant)
+# tidy data cleaning functions
+# library(janitor)
+# keine überlappenden Labels in Plots
+library(ggrepel)
+# library(lubridate)
+library(corrplot)
+library(gridExtra)
+# für ggplot labels im Plot
+library(directlabels)
+# global theme für ggplot
+theme_set(theme_minimal())
+
+today <- Sys.Date()
+```
+
+# Portfolio
+
+```{r}
+returns_monthly <- c("URTH", "EEM", "^NDX") %>%
+    tq_get(get  = "stock.prices",
+           from = "2015-01-01",
+           to   = today) %>%
+    group_by(symbol) %>%
+    tq_transmute(select     = adjusted, 
+                 mutate_fun = periodReturn, 
+                 period     = "monthly", 
+                 col_rename = "Ra")
+returns_monthly
+```
+
+
+```{r}
+weights <- c(
+    0.75, 0.25, 0.0,
+    1.00, 0.00, 0.00,
+    0.00, 0.00, 1.00
+)
+stocks <- c("URTH", "EEM", "^NDX")
+weights_table <-  tibble(stocks) %>%
+    tq_repeat_df(n = 3) %>%
+    bind_cols(tibble(weights)) %>%
+    group_by(portfolio)
+weights_table
+```
+
+```{r}
+returns_monthly_multi <- returns_monthly %>%
+    tq_repeat_df(n = 3)
+returns_monthly_multi
+```
+
+```{r}
+portfolio_returns_monthly_multi <- returns_monthly_multi %>%
+    tq_portfolio(assets_col  = symbol, 
+                 returns_col = Ra, 
+                 weights     = weights_table, 
+                 col_rename  = "Ra")
+portfolio_returns_monthly_multi
+```
+
+```{r}
+portfolio_growth_monthly_multi <- returns_monthly_multi %>%
+    tq_portfolio(assets_col   = symbol, 
+                 returns_col  = Ra, 
+                 weights      = weights_table, 
+                 col_rename   = "investment.growth",
+                 wealth.index = TRUE) %>%
+    mutate(investment.growth = investment.growth * 10000)
+
+```
+
+# Visualisierung
+
+```{r}
+portfolio_growth_monthly_multi %>%
+    ggplot(aes(x = date, y = investment.growth, color = factor(portfolio))) +
+    geom_line(size = 2) +
+    labs(title = "Portfolio Growth",
+         subtitle = "Comparing Multiple Portfolios",
+         caption = "Portfolio 1 is a Standout!",
+         x = "", y = "Portfolio Value",
+         color = "Portfolio") +
+    geom_smooth(method = "loess") +
+    theme_tq() +
+    scale_color_tq() +
+    scale_y_continuous(labels = scales::dollar)
+```
+

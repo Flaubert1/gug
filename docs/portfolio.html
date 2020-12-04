@@ -9,10 +9,10 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="JT" />
 
+<meta name="date" content="2020-12-04" />
 
-<title>page1</title>
+<title>Portfolio</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -316,14 +316,125 @@ $(document).ready(function () {
 
 
 
-<h1 class="title toc-ignore">page1</h1>
-<h4 class="author">JT</h4>
+<h1 class="title toc-ignore">Portfolio</h1>
+<h4 class="date">2020-12-04</h4>
 
 </div>
 
 
-<div id="seite-1" class="section level1">
-<h1>Seite 1</h1>
+<div id="portfolio" class="section level1">
+<h1>Portfolio</h1>
+<pre class="r"><code>returns_monthly &lt;- c(&quot;URTH&quot;, &quot;EEM&quot;, &quot;^NDX&quot;) %&gt;%
+    tq_get(get  = &quot;stock.prices&quot;,
+           from = &quot;2015-01-01&quot;,
+           to   = today) %&gt;%
+    group_by(symbol) %&gt;%
+    tq_transmute(select     = adjusted, 
+                 mutate_fun = periodReturn, 
+                 period     = &quot;monthly&quot;, 
+                 col_rename = &quot;Ra&quot;)
+returns_monthly</code></pre>
+<pre><code>## # A tibble: 216 x 3
+## # Groups:   symbol [3]
+##    symbol date             Ra
+##    &lt;chr&gt;  &lt;date&gt;        &lt;dbl&gt;
+##  1 URTH   2015-01-30 -0.0248 
+##  2 URTH   2015-02-27  0.0668 
+##  3 URTH   2015-03-31 -0.0144 
+##  4 URTH   2015-04-30  0.0178 
+##  5 URTH   2015-05-29  0.00428
+##  6 URTH   2015-06-30 -0.0271 
+##  7 URTH   2015-07-31  0.0263 
+##  8 URTH   2015-08-31 -0.0657 
+##  9 URTH   2015-09-30 -0.0355 
+## 10 URTH   2015-10-30  0.0696 
+## # … with 206 more rows</code></pre>
+<pre class="r"><code>weights &lt;- c(
+    0.75, 0.25, 0.0,
+    1.00, 0.00, 0.00,
+    0.00, 0.00, 1.00
+)
+stocks &lt;- c(&quot;URTH&quot;, &quot;EEM&quot;, &quot;^NDX&quot;)
+weights_table &lt;-  tibble(stocks) %&gt;%
+    tq_repeat_df(n = 3) %&gt;%
+    bind_cols(tibble(weights)) %&gt;%
+    group_by(portfolio)
+weights_table</code></pre>
+<pre><code>## # A tibble: 9 x 3
+## # Groups:   portfolio [3]
+##   portfolio stocks weights
+##       &lt;int&gt; &lt;chr&gt;    &lt;dbl&gt;
+## 1         1 URTH      0.75
+## 2         1 EEM       0.25
+## 3         1 ^NDX      0   
+## 4         2 URTH      1   
+## 5         2 EEM       0   
+## 6         2 ^NDX      0   
+## 7         3 URTH      0   
+## 8         3 EEM       0   
+## 9         3 ^NDX      1</code></pre>
+<pre class="r"><code>returns_monthly_multi &lt;- returns_monthly %&gt;%
+    tq_repeat_df(n = 3)
+returns_monthly_multi</code></pre>
+<pre><code>## # A tibble: 648 x 4
+## # Groups:   portfolio [3]
+##    portfolio symbol date             Ra
+##        &lt;int&gt; &lt;chr&gt;  &lt;date&gt;        &lt;dbl&gt;
+##  1         1 URTH   2015-01-30 -0.0248 
+##  2         1 URTH   2015-02-27  0.0668 
+##  3         1 URTH   2015-03-31 -0.0144 
+##  4         1 URTH   2015-04-30  0.0178 
+##  5         1 URTH   2015-05-29  0.00428
+##  6         1 URTH   2015-06-30 -0.0271 
+##  7         1 URTH   2015-07-31  0.0263 
+##  8         1 URTH   2015-08-31 -0.0657 
+##  9         1 URTH   2015-09-30 -0.0355 
+## 10         1 URTH   2015-10-30  0.0696 
+## # … with 638 more rows</code></pre>
+<pre class="r"><code>portfolio_returns_monthly_multi &lt;- returns_monthly_multi %&gt;%
+    tq_portfolio(assets_col  = symbol, 
+                 returns_col = Ra, 
+                 weights     = weights_table, 
+                 col_rename  = &quot;Ra&quot;)
+portfolio_returns_monthly_multi</code></pre>
+<pre><code>## # A tibble: 216 x 3
+## # Groups:   portfolio [3]
+##    portfolio date             Ra
+##        &lt;int&gt; &lt;date&gt;        &lt;dbl&gt;
+##  1         1 2015-01-30 -0.0170 
+##  2         1 2015-02-27  0.0610 
+##  3         1 2015-03-31 -0.0145 
+##  4         1 2015-04-30  0.0306 
+##  5         1 2015-05-29 -0.00755
+##  6         1 2015-06-30 -0.0277 
+##  7         1 2015-07-31  0.00380
+##  8         1 2015-08-31 -0.0710 
+##  9         1 2015-09-30 -0.0346 
+## 10         1 2015-10-30  0.0683 
+## # … with 206 more rows</code></pre>
+<pre class="r"><code>portfolio_growth_monthly_multi &lt;- returns_monthly_multi %&gt;%
+    tq_portfolio(assets_col   = symbol, 
+                 returns_col  = Ra, 
+                 weights      = weights_table, 
+                 col_rename   = &quot;investment.growth&quot;,
+                 wealth.index = TRUE) %&gt;%
+    mutate(investment.growth = investment.growth * 10000)</code></pre>
+</div>
+<div id="visualisierung" class="section level1">
+<h1>Visualisierung</h1>
+<pre class="r"><code>portfolio_growth_monthly_multi %&gt;%
+    ggplot(aes(x = date, y = investment.growth, color = factor(portfolio))) +
+    geom_line(size = 2) +
+    labs(title = &quot;Portfolio Growth&quot;,
+         subtitle = &quot;Comparing Multiple Portfolios&quot;,
+         caption = &quot;Portfolio 1 is a Standout!&quot;,
+         x = &quot;&quot;, y = &quot;Portfolio Value&quot;,
+         color = &quot;Portfolio&quot;) +
+    geom_smooth(method = &quot;loess&quot;) +
+    theme_tq() +
+    scale_color_tq() +
+    scale_y_continuous(labels = scales::dollar)</code></pre>
+<p><img src="portfolio_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
 </div>
 
 
