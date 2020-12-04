@@ -1,7 +1,7 @@
-name: "GUGU"
+name: "GUG"
 output_dir: "docs"
 navbar:
-  title: "GUGU"
+  title: "GUG"
   left:
     - text: "Home"
       href: index.html
@@ -13,7 +13,7 @@ navbar:
         href: portfolio.html
   right:
     - icon: fa-github fa-lg
-      href: https://github.com/Flaubert1/gugu
+      href: https://github.com/Flaubert1/gug
     - icon: fa-envelope fa-lg
       href: mailto:<jantau@gmx.de>
 output:
