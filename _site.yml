@@ -1,0 +1,9 @@
+name: "GUGU"
+output_dir: "docs"
+navbar:
+  title: "GUGU"
+  left:
+    - text: "Home"
+      href: index.html
+    - text: "Seite 1"
+      href: page1.html
