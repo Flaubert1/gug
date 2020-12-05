@@ -302,12 +302,18 @@ $(document).ready(function () {
     <li>
       <a href="portfolio.html">Portfoliovergleich</a>
     </li>
+    <li>
+      <a href="zeiten.html">Zeiten</a>
+    </li>
+    <li>
+      <a href="vergleich.html">Vergleich</a>
+    </li>
   </ul>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="https://flaubert1.github.io/gug/">
+  <a href="https://github.com/Flaubert1/gug">
     <span class="fa fa-github fa-lg"></span>
      
   </a>
@@ -333,8 +339,20 @@ $(document).ready(function () {
 </div>
 
 
-<div id="portfolio" class="section level1">
-<h1>Portfolio</h1>
+<style type="text/css">
+pre {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+pre[class] {
+  max-height: 100px;
+}
+
+# https://bookdown.org/yihui/rmarkdown-cookbook/html-scroll.html
+</style>
+<div id="portfolio" class="section level2">
+<h2>Portfolio</h2>
 <pre class="r"><code>returns_monthly &lt;- c(&quot;URTH&quot;, &quot;EEM&quot;, &quot;^NDX&quot;) %&gt;%
     tq_get(get  = &quot;stock.prices&quot;,
            from = &quot;2015-01-01&quot;,
@@ -431,8 +449,8 @@ portfolio_returns_monthly_multi</code></pre>
                  wealth.index = TRUE) %&gt;%
     mutate(investment.growth = investment.growth * 10000)</code></pre>
 </div>
-<div id="visualisierung" class="section level1">
-<h1>Visualisierung</h1>
+<div id="visualisierung" class="section level2">
+<h2>Visualisierung</h2>
 <pre class="r"><code>portfolio_growth_monthly_multi %&gt;%
     ggplot(aes(x = date, y = investment.growth, color = factor(portfolio))) +
     geom_line(size = 2) +
@@ -445,7 +463,7 @@ portfolio_returns_monthly_multi</code></pre>
     theme_tq() +
     scale_color_tq() +
     scale_y_continuous(labels = scales::dollar)</code></pre>
-<p><img src="portfolio_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p><img src="portfolio_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
 </div>
 
 

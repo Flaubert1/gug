@@ -28,7 +28,20 @@ theme_set(theme_minimal())
 today <- Sys.Date()
 ```
 
-# Portfolio
+```{css, echo=FALSE}
+pre {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+pre[class] {
+  max-height: 100px;
+}
+
+# https://bookdown.org/yihui/rmarkdown-cookbook/html-scroll.html
+```
+
+## Portfolio
 
 ```{r}
 returns_monthly <- c("URTH", "EEM", "^NDX") %>%
@@ -84,7 +97,7 @@ portfolio_growth_monthly_multi <- returns_monthly_multi %>%
 
 ```
 
-# Visualisierung
+## Visualisierung
 
 ```{r}
 portfolio_growth_monthly_multi %>%
@@ -92,7 +105,7 @@ portfolio_growth_monthly_multi %>%
     geom_line(size = 2) +
     labs(title = "Portfolio Growth",
          subtitle = "Comparing Multiple Portfolios",
-         caption = "Portfolio 1 is a Standout!",
+         caption = "Portfolio 3 is a Standout!",
          x = "", y = "Portfolio Value",
          color = "Portfolio") +
     geom_smooth(method = "loess") +

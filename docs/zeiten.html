@@ -12,7 +12,7 @@
 
 <meta name="date" content="2020-12-04" />
 
-<title>Wealthlevels</title>
+<title>Return über 30, 180 u 365 Tage</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -333,7 +333,7 @@ $(document).ready(function () {
 
 
 
-<h1 class="title toc-ignore">Wealthlevels</h1>
+<h1 class="title toc-ignore">Return über 30, 180 u 365 Tage</h1>
 <h4 class="date">2020-12-04</h4>
 
 </div>
@@ -348,36 +348,170 @@ pre {
 pre[class] {
   max-height: 100px;
 }
+
+# https://bookdown.org/yihui/rmarkdown-cookbook/html-scroll.html
 </style>
-<pre class="r"><code>w_levels &lt;- c(10^4, 10^5, 10^6, 10^7, 10^8)
-df &lt;- data.frame(wealth = c(0, w_levels),
-                 level = seq(1, length(w_levels) + 1))
+<div id="ziel-3-plots-die-die-entwicklung-über-verschiedene-zeiträume-vergleichen" class="section level1">
+<h1>Ziel: 3 Plots, die die Entwicklung über verschiedene Zeiträume vergleichen</h1>
+<div id="vergleich-der-indizesetfs" class="section level2">
+<h2>Vergleich der Indizes/ETFs</h2>
+<pre class="r"><code>labs &lt;- labs(x=&quot;&quot;, y=&quot;Cumulative Return in Percent&quot;) # X- und Y-Achse 
 
-to_plot &lt;- df
 
-text_labels &lt;- data.frame(wealth = w_levels,
-                          level = seq(2, length(w_levels) + 1),
-                          text = c(&quot;Grocery prices\nmatter less&quot;,
-                                   &quot;Restaurant prices\nmatter less&quot;,
-                                   &quot;Vacation prices\n  matter less&quot;,
-                                   &quot;Home prices\nmatter less&quot;,
-                                   &quot;What are prices?&quot;))
+thirtydays &lt;- Sys.Date()-30
+today &lt;- Sys.Date()-1
+last30days &lt;- tq_get(c(&quot;^NDX&quot;, &quot;^GSPC&quot;, &quot;^GDAXI&quot;, &quot;XDWT.L&quot;, &quot;ANX.PA&quot;, &quot;URTH&quot;),
+                     get  = &quot;stock.prices&quot;,
+                     from = thirtydays,
+                     to = today)
 
-source_string &lt;- str_wrap(paste0(&quot;Source: Simulated data (OfDollarsAndData.com)&quot;),
-                          width = 85)
+last30days &lt;- last30days %&gt;% group_by(symbol) %&gt;% 
+  tq_transmute(select     = adjusted, 
+               mutate_fun = periodReturn,
+               period     = &quot;daily&quot;)%&gt;% 
+  ungroup()
 
-ggplot(data = to_plot, aes(x=wealth, y = level)) +
-  geom_step() +
-  geom_point(data=text_labels, aes(x=wealth, y = level), col = &quot;red&quot;) +
-  geom_text_repel(data=text_labels, aes(x=wealth, y = level, label = text), col = &quot;red&quot;, size = 3, max.iter = 3000) +
-  scale_y_continuous( breaks = seq(1, length(w_levels) +1)) +
-  scale_x_continuous( limits= c(NA, 10^8 *1.1), breaks = c(0, w_levels), trans = &quot;log10&quot;) +
-  theme(legend.position = &quot;bottom&quot;,
-        legend.title = element_blank()) +
-  ggtitle(paste0(&quot;Wealth Level Based on Net Worth&quot;)) +
-  labs(x = paste0(&quot;Liquid Net Worth&quot;), y = paste0(&quot;Wealth Level&quot;),
-       caption = paste0(source_string))</code></pre>
-<p><img src="wealthlevels_files/figure-html/unnamed-chunk-3-1.png" width="95%" style="display: block; margin: auto;" /></p>
+last30days &lt;- last30days %&gt;% group_by(symbol) %&gt;%
+  mutate(cumsum = cumsum(daily.returns))
+
+p30 &lt;- ggplot(last30days, aes(date, cumsum, color=symbol))+
+  geom_line()+
+  geom_dl(aes(label=symbol, x=date, y=cumsum), method = list(&quot;last.qp&quot;))+
+  labs(title = &quot;Return last 30 days&quot;)+
+  theme(legend.position = &quot;none&quot;)+
+  labs
+
+thirtydays &lt;- Sys.Date()-180
+today &lt;- Sys.Date()-1
+last30days &lt;- tq_get(c(&quot;^NDX&quot;, &quot;^GSPC&quot;, &quot;^GDAXI&quot;, &quot;XDWT.L&quot;, &quot;ANX.PA&quot;, &quot;URTH&quot;),
+                     get  = &quot;stock.prices&quot;,
+                     from = thirtydays,
+                     to = today)
+
+last30days &lt;- last30days %&gt;% group_by(symbol) %&gt;% 
+  tq_transmute(select     = adjusted, 
+               mutate_fun = periodReturn,
+               period     = &quot;daily&quot;)%&gt;% 
+  ungroup()
+
+last30days &lt;- last30days %&gt;% group_by(symbol) %&gt;%
+  mutate(cumsum = cumsum(daily.returns))
+
+p180 &lt;- ggplot(last30days, aes(date, cumsum, color=symbol))+
+  geom_line()+
+  geom_dl(aes(label=symbol, x=date, y=cumsum), method = list(&quot;last.qp&quot;))+
+  labs(title = &quot;Return last 180 days&quot;)+
+  theme(legend.position = &quot;none&quot;)+
+  labs
+
+
+
+thirtydays &lt;- Sys.Date()-365
+today &lt;- Sys.Date()-1
+last30days &lt;- tq_get(c(&quot;^NDX&quot;, &quot;^GSPC&quot;, &quot;^GDAXI&quot;, &quot;XDWT.L&quot;, &quot;ANX.PA&quot;, &quot;URTH&quot;),
+                     get  = &quot;stock.prices&quot;,
+                     from = thirtydays,
+                     to = today)
+
+last30days &lt;- last30days %&gt;% group_by(symbol) %&gt;% 
+  tq_transmute(select     = adjusted, 
+               mutate_fun = periodReturn,
+               period     = &quot;daily&quot;)%&gt;% 
+  ungroup()
+
+last30days &lt;- last30days %&gt;% group_by(symbol) %&gt;%
+  mutate(cumsum = cumsum(daily.returns))
+
+p365 &lt;- ggplot(last30days, aes(date, cumsum, color=symbol))+
+  geom_line()+
+  geom_dl(aes(label=symbol, x=date, y=cumsum), method = list(&quot;last.qp&quot;))+
+  labs(title = &quot;Return last 365 days&quot;)+
+  theme(legend.position = &quot;none&quot;)+
+  labs
+  
+# subset innerhalb ggplot ist auch möglich, aber hier nicht zielführen
+#p180 &lt;- ggplot(subset(last30days, date &gt; Sys.Date()-180), aes(date, cumsum, color=symbol))+
+#  geom_line()+
+#  geom_dl(aes(label=symbol, x=date + 1, y=cumsum), method=&quot;last.qp&quot;)+
+#  labs(title = &quot;Return last 180 days&quot;)</code></pre>
+<pre class="r"><code>grid.arrange(p30, p180, p365, nrow = 3, top=&quot;Vergleich der ETFs/Indizes&quot;)</code></pre>
+<p><img src="zeiten_files/figure-html/unnamed-chunk-4-1.png" width="95%" style="display: block; margin: auto;" /></p>
+</div>
+<div id="vergleich-der-einzelaktien" class="section level2">
+<h2>Vergleich der Einzelaktien</h2>
+<pre class="r"><code>thirtydays &lt;- Sys.Date()-30
+today &lt;- Sys.Date()
+last30days &lt;- tq_get(c(&quot;AAPL&quot;, &quot;DTE.DE&quot;, &quot;DBK.DE&quot;, &quot;AMZN&quot;, &quot;NVDA&quot;, &quot;TWTR&quot;, &quot;SQ&quot;, &quot;ATVI&quot;),
+                     get  = &quot;stock.prices&quot;,
+                     from = thirtydays,
+                     to = today)
+
+last30days &lt;- last30days %&gt;% group_by(symbol) %&gt;% 
+  tq_transmute(select     = adjusted, 
+               mutate_fun = periodReturn,
+               period     = &quot;daily&quot;)%&gt;% 
+  ungroup()
+
+last30days &lt;- last30days %&gt;% group_by(symbol) %&gt;%
+  mutate(cumsum = cumsum(daily.returns))
+
+p30 &lt;- ggplot(last30days, aes(date, cumsum, color=symbol))+
+  geom_line()+
+  geom_dl(aes(label=symbol, x=date, y=cumsum), method = list(&quot;last.qp&quot;))+
+  labs(title = &quot;Return last 30 days&quot;)+
+  theme(legend.position = &quot;none&quot;)+
+  labs
+
+
+thirtydays &lt;- Sys.Date()-180
+today &lt;- Sys.Date()
+last30days &lt;- tq_get(c(&quot;AAPL&quot;, &quot;DTE.DE&quot;, &quot;DBK.DE&quot;, &quot;AMZN&quot;, &quot;NVDA&quot;, &quot;TWTR&quot;, &quot;SQ&quot;, &quot;ATVI&quot;),
+                     get  = &quot;stock.prices&quot;,
+                     from = thirtydays,
+                     to = today)
+
+last30days &lt;- last30days %&gt;% group_by(symbol) %&gt;% 
+  tq_transmute(select     = adjusted, 
+               mutate_fun = periodReturn,
+               period     = &quot;daily&quot;)%&gt;% 
+  ungroup()
+
+last30days &lt;- last30days %&gt;% group_by(symbol) %&gt;%
+  mutate(cumsum = cumsum(daily.returns))
+
+p180 &lt;- ggplot(last30days, aes(date, cumsum, color=symbol))+
+  geom_line()+
+  geom_dl(aes(label=symbol, x=date, y=cumsum), method = list(&quot;last.qp&quot;))+
+  labs(title = &quot;Return last 180 days&quot;)+
+  theme(legend.position = &quot;none&quot;)+
+  labs
+
+thirtydays &lt;- Sys.Date()-years(1)
+today &lt;- Sys.Date()
+last30days &lt;- tq_get(c(&quot;AAPL&quot;, &quot;DTE.DE&quot;, &quot;DBK.DE&quot;, &quot;AMZN&quot;, &quot;NVDA&quot;, &quot;TWTR&quot;, &quot;SQ&quot;, &quot;ATVI&quot;),
+                     get  = &quot;stock.prices&quot;,
+                     from = thirtydays,
+                     to = today)
+
+last30days &lt;- last30days %&gt;% group_by(symbol) %&gt;% 
+  tq_transmute(select     = adjusted, 
+               mutate_fun = periodReturn,
+               period     = &quot;daily&quot;)%&gt;% 
+  ungroup()
+
+last30days &lt;- last30days %&gt;% group_by(symbol) %&gt;%
+  mutate(cumsum = cumsum(daily.returns))
+
+p365 &lt;- ggplot(last30days, aes(date, cumsum, color=symbol))+
+  geom_line()+
+  geom_dl(aes(label=symbol, x=date, y=cumsum), method = list(&quot;last.qp&quot;))+
+  labs(title = &quot;Return last 365 days&quot;)+
+  theme(legend.position = &quot;none&quot;)+
+  labs # Variable siehe oben</code></pre>
+<pre class="r"><code>grid.arrange(p30, p180, p365, nrow = 3, top=&quot;Vergleich der Einzelaktien&quot;)</code></pre>
+<p><img src="zeiten_files/figure-html/unnamed-chunk-6-1.png" width="95%" style="display: block; margin: auto;" /></p>
+</div>
+</div>
 
 
 

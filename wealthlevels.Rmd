@@ -1,8 +1,6 @@
 ---
 title: "Wealthlevels"
 date: "`r Sys.Date()`"
-editor_options: 
-  chunk_output_type: console
 ---
 
 ```{r, echo = FALSE, message = FALSE, warning = FALSE}
@@ -38,6 +36,19 @@ library(directlabels)
 # global theme für ggplot
 theme_set(theme_minimal())
 ```
+
+```{css, echo=FALSE}
+pre {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+pre[class] {
+  max-height: 100px;
+}
+```
+
+
 
 
 ```{r}

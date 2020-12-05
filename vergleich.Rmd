@@ -1,0 +1,304 @@
+---
+title: "Return v Volatilität"
+date: "`r Sys.Date()`"
+---
+
+
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+# Aufbau und Style des Reports von: 
+# https://business-science.github.io/tidyquant/articles/TQ05-performance-analysis-with-tidyquant.html
+# https://github.com/business-science/tidyquant/blob/master/vignettes/TQ05-performance-analysis-with-tidyquant.Rmd
+
+
+knitr::opts_chunk$set(message = FALSE,
+                      warning = FALSE,
+                      fig.width = 8, 
+                      fig.height = 4.5,
+                      fig.align = 'center',
+                      out.width='95%', 
+                      dpi = 200)
+
+
+# for scraping
+# library(rvest)
+# blanket import for core tidyverse packages
+library(tidyverse)
+# tidy financial analysis 
+library(tidyquant)
+# tidy data cleaning functions
+# library(janitor)
+# keine überlappenden Labels in Plots
+library(ggrepel)
+# library(lubridate)
+library(corrplot)
+library(gridExtra)
+# für ggplot labels im Plot
+library(directlabels)
+# für kable
+library(knitr)
+#library(kableExtra)
+# für datatable
+library(DT)
+# global theme für ggplot
+theme_set(theme_minimal())
+```
+
+```{css, echo=FALSE}
+pre {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+pre[class] {
+  max-height: 100px;
+}
+
+# https://bookdown.org/yihui/rmarkdown-cookbook/html-scroll.html
+```
+
+## Überblick
+
+Der Report besteht aus einer Analyse von Aktien, Indizes und ETFs mit dem R-Package `tidyquant`. Bei dem Aufbau der Seite wurde sich an dem Projekt von [business-science](https://github.com/business-science/tidyquant) orientiert. 
+
+Zunächst werden die Packages `tidyverse` und `tidyquant` geladen. Das Package `tidyverse` beinhaltet die `dplyr` und die `ggplot` Funktionen. Mit `tidyquant`werden die Finanzanalysen durchgeführt.
+
+```{r eval=FALSE}
+# blanket import for core tidyverse packages
+library(tidyverse)
+# tidy financial analysis 
+library(tidyquant)
+```
+
+Im nächsten Schritt werden Variablen für die weiteren Analysen erstellt. So werden die zu analysierenden Zeiträume definiert und die Aktien und Indizes bestimmt. 
+
+```{r }
+# Variablen
+# save current system date to a variable
+today <- Sys.Date()
+# subtract 10 months from the current date - Datum ab dem die Kurse (Arrow Head) ausgewertet werden
+date200_days <- today - months(10)
+# Datum ab dem die Kurse (Point) ausgewertet werden
+date <- "2017-12-31"
+
+# Aktien, Indizes und Watchlist
+aktien <- c("AMZN", "AAPL", "TWTR", "SQ", "ATVI", "DTE.DE", "DBK.DE", "NVDA")
+indizes <- c("URTH", "^NDX", "^GSPC", "^STOXX", "^GDAXI")
+watchlist <- c("TSLA", "MSFT", "FB", "NFLX", "PYPL", "LHA.DE", "ALV.DE","HEN3.DE")
+```
+
+```{r eval=FALSE, include=FALSE}
+# maxblue aktien
+# aktien <- c("AMZN", "AAPL", "MSFT", "FB","TSLA", "GOOGL", "BRK.B", "JNJ", "MA", "PG", "V")
+# watchlist <-0
+```
+
+
+Danach werden mit der Funktion `tq_get` aus `tidyquant` Daten von [Yahoo Finance](https://finance.yahoo.com) geladen. 
+
+```{r cache=TRUE}
+tickers_df <- tq_get(c(aktien, indizes, watchlist),
+                      get  = "stock.prices",
+                      from = date,
+                      to = today)
+
+vergleich_df <- tq_get(c(aktien, indizes, watchlist),
+                     get  = "stock.prices",
+                     from = date200_days,
+                     to = today)
+```
+
+
+```{r echo = FALSE,eval = FALSE}
+# Namen der Werte in neuer Spalte zur besseren Lesbarkeit
+#tickers_df <- tickers_df %>% 
+  # left join with wikipedia data
+#  left_join(ticker_list[,1:2], by = c('symbol' = 'symbol'))
+
+#tickers_df <- tickers_df %>%
+#  mutate(company = case_when(symbol %in% c("^NDX") ~ "Nasdaq 100",
+#                             symbol %in% c("URTH") ~ "MSCI World",
+#                             symbol %in% c("^GSPC") ~ "S&P 500",
+#                             symbol %in% c("SQ") ~ "Square",
+#                             symbol %in% c("DBK.DE") ~ "Deutsche Bank",
+#                             symbol %in% c("ALV.DE") ~ "Allianz",
+#                             symbol %in% c("DTE.DE") ~ "Deutsche Telekom",
+#                             symbol %in% c("HEN3.DE") ~ "Henkel",
+#                             symbol %in% c("LHA.DE") ~ "Lufthansa",
+#                             symbol %in% c("^GDAXI") ~ "DAX",
+#                             symbol %in% c("EXSA.DE") ~ "Euro Stoxx 600",
+#                             TRUE ~ as.character(company)))
+```
+
+Danch werden mit der Funktion `tq_transmute` die täglichen Returns der adjusted Werte gebildet.
+
+```{r}
+daily_sector <- tickers_df %>% group_by(symbol) %>% 
+  tq_transmute(select     = adjusted, 
+               mutate_fun = periodReturn, 
+               period     = "daily") %>% 
+  ungroup()
+
+datatable(daily_sector)
+```
+
+Mit `mutate(cumsum)`werden die Returns kummuliert und ein Graph für ausgewählte Aktien `ticker`ausgegeben.
+
+```{r }
+cumsum_daily_returns <- daily_sector %>%
+  filter(date >= "2020-01-01") %>%
+  group_by(symbol) %>%
+  mutate(cumsum = cumsum(daily.returns)) 
+
+ticker <- c("AAPL", "^NDX", "^GSPC", "^GDAXI")
+
+cumsum_daily_returns %>%
+  filter(symbol == !!ticker) %>%
+  ggplot(aes(date, cumsum, color=symbol))+
+  geom_dl(aes(label=symbol, x=date + 1, y=cumsum), method="last.points")+
+  geom_line()+
+  theme_minimal()+
+  theme(legend.position = "none")+
+  scale_colour_discrete(guide = 'none')  +   
+  scale_x_date(expand=c(0.2, 0))+ # Erweiterung der X-Achse für Label
+  labs(x="", y="Cumulative Return in Percent")
+```
+
+## Vergleich von Return und Volatilität
+
+Es wird danach ein `dataframe` erstellt, der die durchschnittlichen Returns und die Volatilität enthält. Zusätzlich wird eine weitere Spalte erstellt, die die Werte als Index, Watchlist oder Einzelaktie klassifiziert.
+
+```{r }
+avg_return <- daily_sector %>% 
+  group_by(symbol) %>%
+  summarise(avg_return = round(mean(daily.returns), 4),Volatility =   sd(daily.returns)) %>%         
+  arrange(desc(avg_return), desc(Volatility))
+
+avg_return <- avg_return %>% 
+  mutate(Indicator = case_when(symbol %in% indizes ~ "Indizes",
+                               symbol %in% watchlist ~ "Watchlist",
+                                                        TRUE ~ "Einzelaktien"))
+
+datatable(avg_return)
+```
+
+
+Der Plot zeigt den durchschnittlichen täglichen Return im Verhältnis zur Volatilität der Werte für den Zeitraum `r date` bis `r today`.
+
+```{r }
+plot = avg_return %>% ggplot(aes(avg_return, Volatility, color = Indicator))+
+  geom_point()+
+#  geom_text(aes(label = symbol), size = 3)+
+  geom_text_repel(aes(label = symbol), vjust = 0, nudge_y = 0.002, show.legend = F) +
+  labs(title = paste("Average Daily Return vs Volatility", date, "to", today,  sep = " "), x = "Average Return", subtitle = "Data Source: Yahoo Finance")+
+  theme_minimal()
+
+# wenn spalte company für bessere lesbarkeit angzeigt werden soll
+#label = substr(company,1,7)
+
+plot
+```
+
+### Vergleich von Return und Volatilität über zwei Zeiträume
+
+Im nächsten Schritt wird die zweite Datenreihe (Zeitraum `r date200_days` bis `r today`) für den Vergleich ausgewertet. Es wird ebenfalls der durchschnittliche Return und die Volatilität gebildet.  
+
+```{r }
+# Zweite Datenreihe für Vergleich
+
+vergleich_daily_sector <- vergleich_df %>% group_by(symbol) %>% 
+  tq_transmute(select     = adjusted, 
+               mutate_fun = periodReturn,
+               period     = "daily") %>% 
+  ungroup()
+
+
+vergleich_avg_return <- vergleich_daily_sector %>% 
+  group_by(symbol) %>%
+  summarise(avg_return = round(mean(daily.returns), 4),
+            Volatility =   sd(daily.returns)) %>%         
+  arrange(desc(avg_return), desc(Volatility))
+```
+
+Die beiden `dataframes` werden miteinander mit `left_join` verbunden.
+
+```{r }
+combined_avg_return <- left_join(avg_return, vergleich_avg_return, by = c("symbol"))
+
+combined_avg_return <- combined_avg_return %>% 
+  mutate(Indicator = case_when(symbol %in% indizes ~ "Indizes",
+                               symbol %in% watchlist ~ "Watchlist",
+                               TRUE ~ "Einzelaktien"))%>%
+  relocate(where(is.character)) # https://dplyr.tidyverse.org/reference/relocate.html
+
+#print(combined_avg_return, pillar.bold=T)
+
+#kable(combined_avg_return)
+
+datatable(combined_avg_return)
+```
+
+Nun kann ein Plot ausgegeben werden, der die Entwicklung der Werte über zwei Zeiträume darstellt.
+
+```{r }
+# Graph mit geom_segmenz zum Vergleich (http://sape.inf.usi.ch/quick-reference/ggplot2/geom_segment)
+plot <- combined_avg_return %>% ggplot()+
+  geom_segment(data=combined_avg_return, mapping=aes(x=avg_return.x, y=Volatility.x,
+                                                     xend=avg_return.y,
+                                                     yend=Volatility.y, color =
+                                                       Indicator),
+               arrow=arrow(angle=15, length =unit(0.1, "inches"), type = "open"),
+               size=0.5, show.legend = F) + 
+  geom_point(data=combined_avg_return, mapping=aes(x=avg_return.x, y=Volatility.x,
+                                                   color = Indicator), size=1,
+             shape=21) +
+  geom_text_repel(aes(x=avg_return.x, y=Volatility.x, label = symbol, color =
+                        Indicator), vjust = 0, nudge_y = 0.002, show.legend = F) +
+  labs(title = "Average Daily Return vs Volatility", x = "Average Return", y =
+         "Volatility", subtitle = paste("Point:", date, "to", today, "-- Arrow Head:",
+                                        date200_days,"to", today, sep = " "))+
+  theme_minimal()
+
+plot
+
+
+plot <- combined_avg_return %>% filter(!symbol %in% c("TSLA", "SQ")) %>% ggplot()+
+  geom_segment(mapping=aes(x=avg_return.x, y=Volatility.x, xend=avg_return.y, yend=Volatility.y, color = Indicator), arrow=arrow(angle=15, length =unit(0.1, "inches"), type = "open"), size=0.5, show.legend = F) + 
+  geom_point(mapping=aes(x=avg_return.x, y=Volatility.x, color = Indicator), size=1, shape=21) +
+  geom_text_repel(aes(x=avg_return.x, y=Volatility.x, label = symbol, color = Indicator), vjust = 0, nudge_y = 0.002, show.legend = F) +
+  labs(title = "Average Daily Return vs Volatility ohne TSLA und SQ", x = "Average Return", y = "Volatility", subtitle = paste("Point:", date, "to", today, "-- Arrow Head:", date200_days,"to", today, sep = " "))+
+  theme_minimal()
+plot
+```
+
+Zur besseren Lesbarkeit werden Einzelaktien, Indizes und Watchlist-Werte separat dargestellt.
+
+```{r }
+plot <- combined_avg_return %>% filter(Indicator=="Einzelaktien") %>% 
+  ggplot()+
+  geom_segment(mapping=aes(x=avg_return.x, y=Volatility.x, xend=avg_return.y, yend=Volatility.y), arrow=arrow(angle=15, length =unit(0.1, "inches"), type = "open"), size=0.5, show.legend = F) + 
+  geom_point(mapping=aes(x=avg_return.x, y=Volatility.x), size=1, shape=21) +
+  geom_text_repel(aes(x=avg_return.x, y=Volatility.x, label = symbol), vjust = 0, nudge_y = 0.002, show.legend = F) +
+  labs(title = "Average Daily Return vs Volatility nur Einzelaktien", x = "Average Return", y = "Volatility", subtitle = paste("Point:", date, "to", today, "-- Arrow Head:", date200_days,"to", today, sep = " "))+
+  theme_minimal()
+plot
+
+plot <- combined_avg_return %>% filter(Indicator=="Indizes") %>% 
+  ggplot()+
+  geom_segment(mapping=aes(x=avg_return.x, y=Volatility.x, xend=avg_return.y, yend=Volatility.y), arrow=arrow(angle=15, length =unit(0.1, "inches"), type = "open"), size=0.5, show.legend = F) + 
+  geom_point(mapping=aes(x=avg_return.x, y=Volatility.x), size=1, shape=21) +
+  geom_text_repel(aes(x=avg_return.x, y=Volatility.x, label = symbol), vjust = 0, nudge_y = 0.002, show.legend = F) +
+  labs(title = "Average Daily Return vs Volatility nur Indizes", x = "Average Return", y = "Volatility", subtitle = paste("Point:", date, "to", today, "-- Arrow Head:", date200_days,"to", today, sep = " "))+
+  theme_minimal()
+plot
+
+plot <- combined_avg_return %>% filter(Indicator=="Watchlist") %>% 
+  ggplot()+
+  geom_segment(mapping=aes(x=avg_return.x, y=Volatility.x, xend=avg_return.y, yend=Volatility.y), arrow=arrow(angle=15, length =unit(0.1, "inches"), type = "open"), size=0.5, show.legend = F) + 
+  geom_point(mapping=aes(x=avg_return.x, y=Volatility.x), size=1, shape=21) +
+  geom_text_repel(aes(x=avg_return.x, y=Volatility.x, label = symbol), vjust = 0, nudge_y = 0.002, show.legend = F) +
+  labs(title = "Average Daily Return vs Volatility nur Watchlist", x = "Average Return", y = "Volatility", subtitle = paste("Point:", date, "to", today, "-- Arrow Head:", date200_days,"to", today, sep = " "))+
+  theme_minimal()
+plot
+```
+

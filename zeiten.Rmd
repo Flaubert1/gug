@@ -1,0 +1,223 @@
+---
+title: "Return über 30, 180 u 365 Tage"
+date: "`r Sys.Date()`"
+---
+
+
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+# Aufbau und Style des Reports von: 
+# https://business-science.github.io/tidyquant/articles/TQ05-performance-analysis-with-tidyquant.html
+# https://github.com/business-science/tidyquant/blob/master/vignettes/TQ05-performance-analysis-with-tidyquant.Rmd
+
+
+knitr::opts_chunk$set(message = FALSE,
+                      warning = FALSE,
+                      fig.width = 8, 
+                      fig.height = 4.5,
+                      fig.align = 'center',
+                      out.width='95%', 
+                      dpi = 200)
+
+
+# for scraping
+# library(rvest)
+# blanket import for core tidyverse packages
+library(tidyverse)
+# tidy financial analysis 
+library(tidyquant)
+# tidy data cleaning functions
+# library(janitor)
+# keine überlappenden Labels in Plots
+library(ggrepel)
+# library(lubridate)
+library(corrplot)
+library(gridExtra)
+# für ggplot labels im Plot
+library(directlabels)
+# global theme für ggplot
+theme_set(theme_minimal())
+```
+
+```{css, echo=FALSE}
+pre {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+pre[class] {
+  max-height: 100px;
+}
+
+# https://bookdown.org/yihui/rmarkdown-cookbook/html-scroll.html
+```
+
+## Ziel: 3 Plots, die die Entwicklung über verschiedene Zeiträume vergleichen
+### Vergleich der Indizes/ETFs
+```{r }
+
+labs <- labs(x="", y="Cumulative Return in Percent") # X- und Y-Achse 
+
+
+thirtydays <- Sys.Date()-30
+today <- Sys.Date()-1
+last30days <- tq_get(c("^NDX", "^GSPC", "^GDAXI", "XDWT.L", "ANX.PA", "URTH"),
+                     get  = "stock.prices",
+                     from = thirtydays,
+                     to = today)
+
+last30days <- last30days %>% group_by(symbol) %>% 
+  tq_transmute(select     = adjusted, 
+               mutate_fun = periodReturn,
+               period     = "daily")%>% 
+  ungroup()
+
+last30days <- last30days %>% group_by(symbol) %>%
+  mutate(cumsum = cumsum(daily.returns))
+
+p30 <- ggplot(last30days, aes(date, cumsum, color=symbol))+
+  geom_line()+
+  geom_dl(aes(label=symbol, x=date, y=cumsum), method = list("last.qp"))+
+  labs(title = "Return last 30 days")+
+  theme(legend.position = "none")+
+  labs
+
+thirtydays <- Sys.Date()-180
+today <- Sys.Date()-1
+last30days <- tq_get(c("^NDX", "^GSPC", "^GDAXI", "XDWT.L", "ANX.PA", "URTH"),
+                     get  = "stock.prices",
+                     from = thirtydays,
+                     to = today)
+
+last30days <- last30days %>% group_by(symbol) %>% 
+  tq_transmute(select     = adjusted, 
+               mutate_fun = periodReturn,
+               period     = "daily")%>% 
+  ungroup()
+
+last30days <- last30days %>% group_by(symbol) %>%
+  mutate(cumsum = cumsum(daily.returns))
+
+p180 <- ggplot(last30days, aes(date, cumsum, color=symbol))+
+  geom_line()+
+  geom_dl(aes(label=symbol, x=date, y=cumsum), method = list("last.qp"))+
+  labs(title = "Return last 180 days")+
+  theme(legend.position = "none")+
+  labs
+
+
+
+thirtydays <- Sys.Date()-365
+today <- Sys.Date()-1
+last30days <- tq_get(c("^NDX", "^GSPC", "^GDAXI", "XDWT.L", "ANX.PA", "URTH"),
+                     get  = "stock.prices",
+                     from = thirtydays,
+                     to = today)
+
+last30days <- last30days %>% group_by(symbol) %>% 
+  tq_transmute(select     = adjusted, 
+               mutate_fun = periodReturn,
+               period     = "daily")%>% 
+  ungroup()
+
+last30days <- last30days %>% group_by(symbol) %>%
+  mutate(cumsum = cumsum(daily.returns))
+
+p365 <- ggplot(last30days, aes(date, cumsum, color=symbol))+
+  geom_line()+
+  geom_dl(aes(label=symbol, x=date, y=cumsum), method = list("last.qp"))+
+  labs(title = "Return last 365 days")+
+  theme(legend.position = "none")+
+  labs
+  
+# subset innerhalb ggplot ist auch möglich, aber hier nicht zielführen
+#p180 <- ggplot(subset(last30days, date > Sys.Date()-180), aes(date, cumsum, color=symbol))+
+#  geom_line()+
+#  geom_dl(aes(label=symbol, x=date + 1, y=cumsum), method="last.qp")+
+#  labs(title = "Return last 180 days")
+```
+
+
+```{r, fig.height=15}
+grid.arrange(p30, p180, p365, nrow = 3, top="Vergleich der ETFs/Indizes")
+```
+
+### Vergleich der Einzelaktien
+
+```{r}
+thirtydays <- Sys.Date()-30
+today <- Sys.Date()
+last30days <- tq_get(c("AAPL", "DTE.DE", "DBK.DE", "AMZN", "NVDA", "TWTR", "SQ", "ATVI"),
+                     get  = "stock.prices",
+                     from = thirtydays,
+                     to = today)
+
+last30days <- last30days %>% group_by(symbol) %>% 
+  tq_transmute(select     = adjusted, 
+               mutate_fun = periodReturn,
+               period     = "daily")%>% 
+  ungroup()
+
+last30days <- last30days %>% group_by(symbol) %>%
+  mutate(cumsum = cumsum(daily.returns))
+
+p30 <- ggplot(last30days, aes(date, cumsum, color=symbol))+
+  geom_line()+
+  geom_dl(aes(label=symbol, x=date, y=cumsum), method = list("last.qp"))+
+  labs(title = "Return last 30 days")+
+  theme(legend.position = "none")+
+  labs
+
+
+thirtydays <- Sys.Date()-180
+today <- Sys.Date()
+last30days <- tq_get(c("AAPL", "DTE.DE", "DBK.DE", "AMZN", "NVDA", "TWTR", "SQ", "ATVI"),
+                     get  = "stock.prices",
+                     from = thirtydays,
+                     to = today)
+
+last30days <- last30days %>% group_by(symbol) %>% 
+  tq_transmute(select     = adjusted, 
+               mutate_fun = periodReturn,
+               period     = "daily")%>% 
+  ungroup()
+
+last30days <- last30days %>% group_by(symbol) %>%
+  mutate(cumsum = cumsum(daily.returns))
+
+p180 <- ggplot(last30days, aes(date, cumsum, color=symbol))+
+  geom_line()+
+  geom_dl(aes(label=symbol, x=date, y=cumsum), method = list("last.qp"))+
+  labs(title = "Return last 180 days")+
+  theme(legend.position = "none")+
+  labs
+
+thirtydays <- Sys.Date()-years(1)
+today <- Sys.Date()
+last30days <- tq_get(c("AAPL", "DTE.DE", "DBK.DE", "AMZN", "NVDA", "TWTR", "SQ", "ATVI"),
+                     get  = "stock.prices",
+                     from = thirtydays,
+                     to = today)
+
+last30days <- last30days %>% group_by(symbol) %>% 
+  tq_transmute(select     = adjusted, 
+               mutate_fun = periodReturn,
+               period     = "daily")%>% 
+  ungroup()
+
+last30days <- last30days %>% group_by(symbol) %>%
+  mutate(cumsum = cumsum(daily.returns))
+
+p365 <- ggplot(last30days, aes(date, cumsum, color=symbol))+
+  geom_line()+
+  geom_dl(aes(label=symbol, x=date, y=cumsum), method = list("last.qp"))+
+  labs(title = "Return last 365 days")+
+  theme(legend.position = "none")+
+  labs # Variable siehe oben
+
+```
+
+```{r, fig.height=15}
+grid.arrange(p30, p180, p365, nrow = 3, top="Vergleich der Einzelaktien")
+```
+
