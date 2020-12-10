@@ -10,7 +10,7 @@
 
 
 
-<meta name="date" content="2020-12-05" />
+<meta name="date" content="2020-12-09" />
 
 <title>Return v Volatilität</title>
 
@@ -342,7 +342,7 @@ $(document).ready(function () {
 
 
 <h1 class="title toc-ignore">Return v Volatilität</h1>
-<h4 class="date">2020-12-05</h4>
+<h4 class="date">2020-12-09</h4>
 
 </div>
 
@@ -361,7 +361,14 @@ pre[class] {
 </style>
 <div id="überblick" class="section level2">
 <h2>Überblick</h2>
-<p>Der Report besteht aus einer Analyse von Aktien, Indizes und ETFs mit dem R-Package <code>tidyquant</code>. Bei dem Aufbau der Seite wurde sich an dem Projekt von <a href="https://github.com/business-science/tidyquant">business-science</a> orientiert.</p>
+<p>In dieser Analyse werden die Tagesrendite (daily return) ins Verhältnis gesetzt zur Volatilität (volatility) von Indizes und Aktien. Dieses Verhältnis wird jeweils über zwei Zeiträume angezeigt, um so einen Trend anzeigen zu können.</p>
+<p>Die Tagesrendite misst die Veränderung des Kurses einer Aktie in Prozent anhand des Schlusskurses des Vortages. Eine positive Rendite bedeutet, dass die Aktie an Wert gewonnen hat, während eine negative Rendite bedeutet, dass sie an Wert verloren hat.</p>
+<p>Die Volatilität ist ein statistisches Maß für die Streuung der Renditen. Die Volatilität wird in dieser Analyse als Standardabweichung gemessen.</p>
+<p><a href="https://www.investopedia.com/terms/v/volatility.asp" class="uri">https://www.investopedia.com/terms/v/volatility.asp</a></p>
+<p>Oft gilt: Je höher die Volatilität, desto risikoreicher das Wertpapier. Eine hohe Volatilität kann jedoch auch bedeuten, dass sich ein Wertpapier besonders gut entwickelt hat und stark gestiegen ist.</p>
+</div>
+<div id="technische-durchführung-der-analyse" class="section level2">
+<h2>Technische Durchführung der Analyse</h2>
 <p>Zunächst werden die Packages <code>tidyverse</code> und <code>tidyquant</code> geladen. Das Package <code>tidyverse</code> beinhaltet die <code>dplyr</code> und die <code>ggplot</code> Funktionen. Mit <code>tidyquant</code>werden die Finanzanalysen durchgeführt.</p>
 <pre class="r"><code># blanket import for core tidyverse packages
 library(tidyverse)
@@ -436,7 +443,7 @@ avg_return &lt;- avg_return %&gt;%
 datatable(avg_return)</code></pre>
 <div id="htmlwidget-163c465b1e7a119edff6" style="width:100%;height:auto;" class="datatables html-widget"></div>
 <script type="application/json" data-for="htmlwidget-163c465b1e7a119edff6">{"x":{"filter":"none","data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21"],["TSLA","SQ","NVDA","PYPL","AAPL","NFLX","TWTR","AMZN","MSFT","^NDX","FB","ATVI","^GSPC","URTH","ALV.DE","DTE.DE","EXSA.DE","^GDAXI","HEN3.DE","DBK.DE","LHA.DE"],[0.004,0.0031,0.0019,0.0018,0.0017,0.0016,0.0015,0.0015,0.0015,0.001,0.0009,0.0006,0.0005,0.0005,0.0004,0.0004,0.0002,0.0001,-0.0001,-0.0003,-0.001],[0.0430392362325333,0.0372870179123373,0.0316391226516804,0.0246433878563554,0.0221951307658741,0.0270185919243417,0.0344771070230559,0.02106516092983,0.0204790887948213,0.016851239900538,0.0241181652414694,0.023625197672958,0.014853004802361,0.0139821972785941,0.0179845502713514,0.0131923379380387,0.0122317133294127,0.0142791571219307,0.0143748055932117,0.0273805316358333,0.0288851673867615],["Watchlist","Einzelaktien","Einzelaktien","Watchlist","Einzelaktien","Watchlist","Einzelaktien","Einzelaktien","Watchlist","Indizes","Watchlist","Einzelaktien","Indizes","Indizes","Watchlist","Einzelaktien","Einzelaktien","Indizes","Watchlist","Einzelaktien","Watchlist"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>symbol<\/th>\n      <th>avg_return<\/th>\n      <th>Volatility<\/th>\n      <th>Indicator<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"className":"dt-right","targets":[2,3]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
-<p>Der Plot zeigt den durchschnittlichen täglichen Return im Verhältnis zur Volatilität der Werte für den Zeitraum 2017-12-31 bis 2020-12-05.</p>
+<p>Der Plot zeigt den durchschnittlichen täglichen Return im Verhältnis zur Volatilität der Werte für den Zeitraum 2017-12-31 bis 2020-12-09.</p>
 <pre class="r"><code>plot = avg_return %&gt;% ggplot(aes(avg_return, Volatility, color = Indicator))+
   geom_point()+
 #  geom_text(aes(label = symbol), size = 3)+
@@ -451,7 +458,7 @@ plot</code></pre>
 <p><img src="vergleich_files/figure-html/unnamed-chunk-11-1.png" width="95%" style="display: block; margin: auto;" /></p>
 <div id="vergleich-von-return-und-volatilität-über-zwei-zeiträume" class="section level3">
 <h3>Vergleich von Return und Volatilität über zwei Zeiträume</h3>
-<p>Im nächsten Schritt wird die zweite Datenreihe (Zeitraum 2020-02-05 bis 2020-12-05) für den Vergleich ausgewertet. Es wird ebenfalls der durchschnittliche Return und die Volatilität gebildet.</p>
+<p>Im nächsten Schritt wird die zweite Datenreihe (Zeitraum 2020-02-09 bis 2020-12-09) für den Vergleich ausgewertet. Es wird ebenfalls der durchschnittliche Return und die Volatilität gebildet.</p>
 <pre class="r"><code># Zweite Datenreihe für Vergleich
 
 vergleich_daily_sector &lt;- vergleich_df %&gt;% group_by(symbol) %&gt;% 
@@ -475,13 +482,16 @@ combined_avg_return &lt;- combined_avg_return %&gt;%
                                TRUE ~ &quot;Einzelaktien&quot;))%&gt;%
   relocate(where(is.character)) # https://dplyr.tidyverse.org/reference/relocate.html
 
+combined_avg_return &lt;- combined_avg_return %&gt;%
+  mutate(below_zero = ifelse(avg_return.x &gt; avg_return.y, 1, 0)) # für Farben im Plot
+
 #print(combined_avg_return, pillar.bold=T)
 
 #kable(combined_avg_return)
 
 datatable(combined_avg_return)</code></pre>
 <div id="htmlwidget-02fc1e77116e50bdd639" style="width:100%;height:auto;" class="datatables html-widget"></div>
-<script type="application/json" data-for="htmlwidget-02fc1e77116e50bdd639">{"x":{"filter":"none","data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21"],["TSLA","SQ","NVDA","PYPL","AAPL","NFLX","TWTR","AMZN","MSFT","^NDX","FB","ATVI","^GSPC","URTH","ALV.DE","DTE.DE","EXSA.DE","^GDAXI","HEN3.DE","DBK.DE","LHA.DE"],["Watchlist","Einzelaktien","Einzelaktien","Watchlist","Einzelaktien","Watchlist","Einzelaktien","Einzelaktien","Watchlist","Indizes","Watchlist","Einzelaktien","Indizes","Indizes","Watchlist","Einzelaktien","Einzelaktien","Indizes","Watchlist","Einzelaktien","Watchlist"],[0.004,0.0031,0.0019,0.0018,0.0017,0.0016,0.0015,0.0015,0.0015,0.001,0.0009,0.0006,0.0005,0.0005,0.0004,0.0004,0.0002,0.0001,-0.0001,-0.0003,-0.001],[0.0430392362325333,0.0372870179123373,0.0316391226516804,0.0246433878563554,0.0221951307658741,0.0270185919243417,0.0344771070230559,0.02106516092983,0.0204790887948213,0.016851239900538,0.0241181652414694,0.023625197672958,0.014853004802361,0.0139821972785941,0.0179845502713514,0.0131923379380387,0.0122317133294127,0.0142791571219307,0.0143748055932117,0.0273805316358333,0.0288851673867615],[0.0082,0.0059,0.0044,0.0034,0.0025,0.0019,0.0026,0.0024,0.0013,0.0017,0.0018,0.0019,0.0008,0.0008,0.0001,0.0008,-0.0001,0.0002,0.0001,0.0015,-0.0009],[0.055723777256567,0.048924309478704,0.0391002349007554,0.0353323396797131,0.0311497193373326,0.0302306687624282,0.0416993454470692,0.0254969939502849,0.0296513712186865,0.0247231568134045,0.0306552514855292,0.0260062706463805,0.0235083657992296,0.022409914577535,0.0293956064652614,0.020229186369456,0.0194731480444497,0.0221268475130394,0.0184999859779643,0.0381709328277052,0.0443131085970052]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>symbol<\/th>\n      <th>Indicator<\/th>\n      <th>avg_return.x<\/th>\n      <th>Volatility.x<\/th>\n      <th>avg_return.y<\/th>\n      <th>Volatility.y<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"className":"dt-right","targets":[3,4,5,6]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<script type="application/json" data-for="htmlwidget-02fc1e77116e50bdd639">{"x":{"filter":"none","data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21"],["TSLA","SQ","NVDA","PYPL","AAPL","NFLX","TWTR","AMZN","MSFT","^NDX","FB","ATVI","^GSPC","URTH","ALV.DE","DTE.DE","EXSA.DE","^GDAXI","HEN3.DE","DBK.DE","LHA.DE"],["Watchlist","Einzelaktien","Einzelaktien","Watchlist","Einzelaktien","Watchlist","Einzelaktien","Einzelaktien","Watchlist","Indizes","Watchlist","Einzelaktien","Indizes","Indizes","Watchlist","Einzelaktien","Einzelaktien","Indizes","Watchlist","Einzelaktien","Watchlist"],[0.004,0.0031,0.0019,0.0018,0.0017,0.0016,0.0015,0.0015,0.0015,0.001,0.0009,0.0006,0.0005,0.0005,0.0004,0.0004,0.0002,0.0001,-0.0001,-0.0003,-0.001],[0.0430392362325333,0.0372870179123373,0.0316391226516804,0.0246433878563554,0.0221951307658741,0.0270185919243417,0.0344771070230559,0.02106516092983,0.0204790887948213,0.016851239900538,0.0241181652414694,0.023625197672958,0.014853004802361,0.0139821972785941,0.0179845502713514,0.0131923379380387,0.0122317133294127,0.0142791571219307,0.0143748055932117,0.0273805316358333,0.0288851673867615],[0.0082,0.0059,0.0044,0.0034,0.0025,0.0019,0.0026,0.0024,0.0013,0.0017,0.0018,0.0019,0.0008,0.0008,0.0001,0.0008,-0.0001,0.0002,0.0001,0.0015,-0.0009],[0.055723777256567,0.048924309478704,0.0391002349007554,0.0353323396797131,0.0311497193373326,0.0302306687624282,0.0416993454470692,0.0254969939502849,0.0296513712186865,0.0247231568134045,0.0306552514855292,0.0260062706463805,0.0235083657992296,0.022409914577535,0.0293956064652614,0.020229186369456,0.0194731480444497,0.0221268475130394,0.0184999859779643,0.0381709328277052,0.0443131085970052],[0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,1,0,0,0,0]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>symbol<\/th>\n      <th>Indicator<\/th>\n      <th>avg_return.x<\/th>\n      <th>Volatility.x<\/th>\n      <th>avg_return.y<\/th>\n      <th>Volatility.y<\/th>\n      <th>below_zero<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"className":"dt-right","targets":[3,4,5,6,7]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 <p>Nun kann ein Plot ausgegeben werden, der die Entwicklung der Werte über zwei Zeiträume darstellt.</p>
 <pre class="r"><code># Graph mit geom_segmenz zum Vergleich (http://sape.inf.usi.ch/quick-reference/ggplot2/geom_segment)
 plot &lt;- combined_avg_return %&gt;% ggplot()+
@@ -512,30 +522,51 @@ plot</code></pre>
 plot</code></pre>
 <p><img src="vergleich_files/figure-html/unnamed-chunk-14-2.png" width="95%" style="display: block; margin: auto;" /></p>
 <p>Zur besseren Lesbarkeit werden Einzelaktien, Indizes und Watchlist-Werte separat dargestellt.</p>
-<pre class="r"><code>plot &lt;- combined_avg_return %&gt;% filter(Indicator==&quot;Einzelaktien&quot;) %&gt;% 
+<pre class="r"><code>my_palette &lt;- c(&quot;#4DAF4A&quot;, &quot;#E41A1C&quot;, &quot;#377EB8&quot;, &quot;#000000&quot;, &quot;#984EA3&quot;, &quot;#FF7F00&quot;, &quot;#A65628&quot;)
+# from here: https://github.com/nmaggiulli/of-dollars-and-data/blob/master/analysis/0017_sp500_returns_pe.R
+
+plot &lt;- combined_avg_return %&gt;% filter(Indicator==&quot;Einzelaktien&quot;) %&gt;% 
   ggplot()+
-  geom_segment(mapping=aes(x=avg_return.x, y=Volatility.x, xend=avg_return.y, yend=Volatility.y), arrow=arrow(angle=15, length =unit(0.1, &quot;inches&quot;), type = &quot;open&quot;), size=0.5, show.legend = F) + 
+  geom_segment(mapping=aes(x=avg_return.x, y=Volatility.x, xend=avg_return.y,
+                           yend=Volatility.y, color=as.factor(below_zero)),
+               arrow=arrow(angle=15, length =unit(0.1, &quot;inches&quot;), type = &quot;open&quot;),
+               size=0.5, show.legend = F) + 
   geom_point(mapping=aes(x=avg_return.x, y=Volatility.x), size=1, shape=21) +
-  geom_text_repel(aes(x=avg_return.x, y=Volatility.x, label = symbol), vjust = 0, nudge_y = 0.002, show.legend = F) +
-  labs(title = &quot;Average Daily Return vs Volatility nur Einzelaktien&quot;, x = &quot;Average Return&quot;, y = &quot;Volatility&quot;, subtitle = paste(&quot;Point:&quot;, date, &quot;to&quot;, today, &quot;-- Arrow Head:&quot;, date200_days,&quot;to&quot;, today, sep = &quot; &quot;))+
+  geom_text_repel(aes(x=avg_return.x, y=Volatility.x, label = symbol), vjust = 0,
+                  nudge_y = 0.002, show.legend = F) +
+  scale_color_manual(values = my_palette, guide = FALSE) +
+  labs(title = &quot;Average Daily Return vs Volatility nur Einzelaktien&quot;, x = &quot;Average
+  Return&quot;, y = &quot;Volatility&quot;, subtitle = paste(&quot;Point:&quot;, date, &quot;to&quot;, today, &quot;-- Arrow Head:&quot;, date200_days,&quot;to&quot;, today, sep = &quot; &quot;))+
   theme_minimal()
 plot</code></pre>
 <p><img src="vergleich_files/figure-html/unnamed-chunk-15-1.png" width="95%" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>plot &lt;- combined_avg_return %&gt;% filter(Indicator==&quot;Indizes&quot;) %&gt;% 
   ggplot()+
-  geom_segment(mapping=aes(x=avg_return.x, y=Volatility.x, xend=avg_return.y, yend=Volatility.y), arrow=arrow(angle=15, length =unit(0.1, &quot;inches&quot;), type = &quot;open&quot;), size=0.5, show.legend = F) + 
+  geom_segment(mapping=aes(x=avg_return.x, y=Volatility.x, xend=avg_return.y,
+                           yend=Volatility.y, color=as.factor(below_zero)),
+               arrow=arrow(angle=15, length =unit(0.1, &quot;inches&quot;), type = &quot;open&quot;),
+               size=0.5, show.legend = F) + 
   geom_point(mapping=aes(x=avg_return.x, y=Volatility.x), size=1, shape=21) +
-  geom_text_repel(aes(x=avg_return.x, y=Volatility.x, label = symbol), vjust = 0, nudge_y = 0.002, show.legend = F) +
-  labs(title = &quot;Average Daily Return vs Volatility nur Indizes&quot;, x = &quot;Average Return&quot;, y = &quot;Volatility&quot;, subtitle = paste(&quot;Point:&quot;, date, &quot;to&quot;, today, &quot;-- Arrow Head:&quot;, date200_days,&quot;to&quot;, today, sep = &quot; &quot;))+
+  geom_text_repel(aes(x=avg_return.x, y=Volatility.x, label = symbol), vjust = 0,
+                  nudge_y = 0.002, show.legend = F) +
+  scale_color_manual(values = my_palette, guide = FALSE) +
+  labs(title = &quot;Average Daily Return vs Volatility nur Indizes&quot;, x = &quot;Average Return&quot;,
+       y = &quot;Volatility&quot;, subtitle = paste(&quot;Point:&quot;, date, &quot;to&quot;, today, &quot;-- Arrow Head:&quot;, date200_days,&quot;to&quot;, today, sep = &quot; &quot;))+
   theme_minimal()
 plot</code></pre>
 <p><img src="vergleich_files/figure-html/unnamed-chunk-15-2.png" width="95%" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>plot &lt;- combined_avg_return %&gt;% filter(Indicator==&quot;Watchlist&quot;) %&gt;% 
   ggplot()+
-  geom_segment(mapping=aes(x=avg_return.x, y=Volatility.x, xend=avg_return.y, yend=Volatility.y), arrow=arrow(angle=15, length =unit(0.1, &quot;inches&quot;), type = &quot;open&quot;), size=0.5, show.legend = F) + 
+  geom_segment(mapping=aes(x=avg_return.x, y=Volatility.x, xend=avg_return.y,
+                           yend=Volatility.y, color=as.factor(below_zero)),
+               arrow=arrow(angle=15, length =unit(0.1, &quot;inches&quot;), type = &quot;open&quot;),
+               size=0.5, show.legend = F) + 
   geom_point(mapping=aes(x=avg_return.x, y=Volatility.x), size=1, shape=21) +
-  geom_text_repel(aes(x=avg_return.x, y=Volatility.x, label = symbol), vjust = 0, nudge_y = 0.002, show.legend = F) +
-  labs(title = &quot;Average Daily Return vs Volatility nur Watchlist&quot;, x = &quot;Average Return&quot;, y = &quot;Volatility&quot;, subtitle = paste(&quot;Point:&quot;, date, &quot;to&quot;, today, &quot;-- Arrow Head:&quot;, date200_days,&quot;to&quot;, today, sep = &quot; &quot;))+
+  geom_text_repel(aes(x=avg_return.x, y=Volatility.x, label = symbol), vjust = 0,
+                  nudge_y = 0.002, show.legend = F) +
+  scale_color_manual(values = my_palette, guide = FALSE) +
+  labs(title = &quot;Average Daily Return vs Volatility nur Watchlist&quot;, x = &quot;Average
+       Return&quot;, y = &quot;Volatility&quot;, subtitle = paste(&quot;Point:&quot;, date, &quot;to&quot;, today, &quot;-- Arrow Head:&quot;, date200_days,&quot;to&quot;, today, sep = &quot; &quot;))+
   theme_minimal()
 plot</code></pre>
 <p><img src="vergleich_files/figure-html/unnamed-chunk-15-3.png" width="95%" style="display: block; margin: auto;" /></p>

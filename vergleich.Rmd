@@ -1,6 +1,8 @@
 ---
 title: "Return v Volatilität"
 date: "`r Sys.Date()`"
+editor_options: 
+  chunk_output_type: console
 ---
 
 
@@ -59,7 +61,17 @@ pre[class] {
 
 ## Überblick
 
-Der Report besteht aus einer Analyse von Aktien, Indizes und ETFs mit dem R-Package `tidyquant`. Bei dem Aufbau der Seite wurde sich an dem Projekt von [business-science](https://github.com/business-science/tidyquant) orientiert. 
+In dieser Analyse werden die Tagesrendite (daily return) ins Verhältnis gesetzt zur Volatilität (volatility) von Indizes und Aktien. Dieses Verhältnis wird jeweils über zwei Zeiträume angezeigt, um so einen Trend anzeigen zu können.
+
+Die Tagesrendite misst die Veränderung des Kurses einer Aktie in Prozent anhand des Schlusskurses des Vortages. Eine positive Rendite bedeutet, dass die Aktie an Wert gewonnen hat, während eine negative Rendite bedeutet, dass sie an Wert verloren hat.
+
+Die Volatilität ist ein statistisches Maß für die Streuung der Renditen. Die Volatilität wird in dieser Analyse als Standardabweichung gemessen.
+
+https://www.investopedia.com/terms/v/volatility.asp
+
+Oft gilt: Je höher die Volatilität, desto risikoreicher das Wertpapier. Eine hohe Volatilität kann jedoch auch bedeuten, dass sich ein Wertpapier besonders gut entwickelt hat und stark gestiegen ist.
+
+## Technische Durchführung der Analyse
 
 Zunächst werden die Packages `tidyverse` und `tidyquant` geladen. Das Package `tidyverse` beinhaltet die `dplyr` und die `ggplot` Funktionen. Mit `tidyquant`werden die Finanzanalysen durchgeführt.
 
@@ -231,6 +243,9 @@ combined_avg_return <- combined_avg_return %>%
                                TRUE ~ "Einzelaktien"))%>%
   relocate(where(is.character)) # https://dplyr.tidyverse.org/reference/relocate.html
 
+combined_avg_return <- combined_avg_return %>%
+  mutate(below_zero = ifelse(avg_return.x > avg_return.y, 1, 0)) # für Farben im Plot
+
 #print(combined_avg_return, pillar.bold=T)
 
 #kable(combined_avg_return)
@@ -274,30 +289,51 @@ plot
 Zur besseren Lesbarkeit werden Einzelaktien, Indizes und Watchlist-Werte separat dargestellt.
 
 ```{r }
+my_palette <- c("#4DAF4A", "#E41A1C", "#377EB8", "#000000", "#984EA3", "#FF7F00", "#A65628")
+# from here: https://github.com/nmaggiulli/of-dollars-and-data/blob/master/analysis/0017_sp500_returns_pe.R
+
 plot <- combined_avg_return %>% filter(Indicator=="Einzelaktien") %>% 
   ggplot()+
-  geom_segment(mapping=aes(x=avg_return.x, y=Volatility.x, xend=avg_return.y, yend=Volatility.y), arrow=arrow(angle=15, length =unit(0.1, "inches"), type = "open"), size=0.5, show.legend = F) + 
+  geom_segment(mapping=aes(x=avg_return.x, y=Volatility.x, xend=avg_return.y,
+                           yend=Volatility.y, color=as.factor(below_zero)),
+               arrow=arrow(angle=15, length =unit(0.1, "inches"), type = "open"),
+               size=0.5, show.legend = F) + 
   geom_point(mapping=aes(x=avg_return.x, y=Volatility.x), size=1, shape=21) +
-  geom_text_repel(aes(x=avg_return.x, y=Volatility.x, label = symbol), vjust = 0, nudge_y = 0.002, show.legend = F) +
-  labs(title = "Average Daily Return vs Volatility nur Einzelaktien", x = "Average Return", y = "Volatility", subtitle = paste("Point:", date, "to", today, "-- Arrow Head:", date200_days,"to", today, sep = " "))+
+  geom_text_repel(aes(x=avg_return.x, y=Volatility.x, label = symbol), vjust = 0,
+                  nudge_y = 0.002, show.legend = F) +
+  scale_color_manual(values = my_palette, guide = FALSE) +
+  labs(title = "Average Daily Return vs Volatility nur Einzelaktien", x = "Average
+  Return", y = "Volatility", subtitle = paste("Point:", date, "to", today, "-- Arrow Head:", date200_days,"to", today, sep = " "))+
   theme_minimal()
 plot
 
 plot <- combined_avg_return %>% filter(Indicator=="Indizes") %>% 
   ggplot()+
-  geom_segment(mapping=aes(x=avg_return.x, y=Volatility.x, xend=avg_return.y, yend=Volatility.y), arrow=arrow(angle=15, length =unit(0.1, "inches"), type = "open"), size=0.5, show.legend = F) + 
+  geom_segment(mapping=aes(x=avg_return.x, y=Volatility.x, xend=avg_return.y,
+                           yend=Volatility.y, color=as.factor(below_zero)),
+               arrow=arrow(angle=15, length =unit(0.1, "inches"), type = "open"),
+               size=0.5, show.legend = F) + 
   geom_point(mapping=aes(x=avg_return.x, y=Volatility.x), size=1, shape=21) +
-  geom_text_repel(aes(x=avg_return.x, y=Volatility.x, label = symbol), vjust = 0, nudge_y = 0.002, show.legend = F) +
-  labs(title = "Average Daily Return vs Volatility nur Indizes", x = "Average Return", y = "Volatility", subtitle = paste("Point:", date, "to", today, "-- Arrow Head:", date200_days,"to", today, sep = " "))+
+  geom_text_repel(aes(x=avg_return.x, y=Volatility.x, label = symbol), vjust = 0,
+                  nudge_y = 0.002, show.legend = F) +
+  scale_color_manual(values = my_palette, guide = FALSE) +
+  labs(title = "Average Daily Return vs Volatility nur Indizes", x = "Average Return",
+       y = "Volatility", subtitle = paste("Point:", date, "to", today, "-- Arrow Head:", date200_days,"to", today, sep = " "))+
   theme_minimal()
 plot
 
 plot <- combined_avg_return %>% filter(Indicator=="Watchlist") %>% 
   ggplot()+
-  geom_segment(mapping=aes(x=avg_return.x, y=Volatility.x, xend=avg_return.y, yend=Volatility.y), arrow=arrow(angle=15, length =unit(0.1, "inches"), type = "open"), size=0.5, show.legend = F) + 
+  geom_segment(mapping=aes(x=avg_return.x, y=Volatility.x, xend=avg_return.y,
+                           yend=Volatility.y, color=as.factor(below_zero)),
+               arrow=arrow(angle=15, length =unit(0.1, "inches"), type = "open"),
+               size=0.5, show.legend = F) + 
   geom_point(mapping=aes(x=avg_return.x, y=Volatility.x), size=1, shape=21) +
-  geom_text_repel(aes(x=avg_return.x, y=Volatility.x, label = symbol), vjust = 0, nudge_y = 0.002, show.legend = F) +
-  labs(title = "Average Daily Return vs Volatility nur Watchlist", x = "Average Return", y = "Volatility", subtitle = paste("Point:", date, "to", today, "-- Arrow Head:", date200_days,"to", today, sep = " "))+
+  geom_text_repel(aes(x=avg_return.x, y=Volatility.x, label = symbol), vjust = 0,
+                  nudge_y = 0.002, show.legend = F) +
+  scale_color_manual(values = my_palette, guide = FALSE) +
+  labs(title = "Average Daily Return vs Volatility nur Watchlist", x = "Average
+       Return", y = "Volatility", subtitle = paste("Point:", date, "to", today, "-- Arrow Head:", date200_days,"to", today, sep = " "))+
   theme_minimal()
 plot
 ```
