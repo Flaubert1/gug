@@ -5,7 +5,7 @@ navbar:
   left:
     - text: "Home"
       href: index.html
-    - text: "Analyse"
+    - text: "Analysen"
       menu:
       - text: "Wealth Levels"
         href: wealthlevels.html
@@ -15,6 +15,8 @@ navbar:
         href: zeiten.html
       - text: "Vergleich"
         href: vergleich.html
+    - text: "Links"
+      href: links.html
   right:
     - icon: fa-github fa-lg
       href: https://github.com/Flaubert1/gug

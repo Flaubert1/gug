@@ -1,6 +1,8 @@
 ---
 title: "Portfolio"
 date: "`r Sys.Date()`"
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -41,10 +43,15 @@ pre[class] {
 # https://bookdown.org/yihui/rmarkdown-cookbook/html-scroll.html
 ```
 
+
+
+
 ## Portfolio
 
+Im ersten Schritt werden die Daten der ETFs von [Yahoo Finance](https://finance.yahoo.com) geladen und die monatlichen Returns erstellt. 
+
 ```{r}
-returns_monthly <- c("URTH", "EEM", "^NDX") %>%
+returns_monthly <- c("URTH", "EEM", "VOO", "QQQ") %>% # URTH = MSCI World, EEM = MSCI EM, VOO = S&P 500, QQQ = Nasdaq 100, 
     tq_get(get  = "stock.prices",
            from = "2015-01-01",
            to   = today) %>%
@@ -59,11 +66,11 @@ returns_monthly
 
 ```{r}
 weights <- c(
-    0.75, 0.25, 0.0,
-    1.00, 0.00, 0.00,
-    0.00, 0.00, 1.00
+    0.66, 0.34, 0.00, 0.00,
+    0.00, 0.00, 0.00, 1.00,
+    0.00, 0.00, 1.00, 0.00
 )
-stocks <- c("URTH", "EEM", "^NDX")
+stocks <- c("URTH", "EEM", "VOO", "QQQ")
 weights_table <-  tibble(stocks) %>%
     tq_repeat_df(n = 3) %>%
     bind_cols(tibble(weights)) %>%
@@ -94,8 +101,18 @@ portfolio_growth_monthly_multi <- returns_monthly_multi %>%
                  col_rename   = "investment.growth",
                  wealth.index = TRUE) %>%
     mutate(investment.growth = investment.growth * 10000)
+```
+
+
+```{r}
+portfolio_growth_monthly_multi <- portfolio_growth_monthly_multi %>%
+  mutate(portfolio = case_when(portfolio %in% 2 ~ "Nasdaq 100",
+                             portfolio %in% 1 ~ "MSCI World 66%/MSCI EM 34%",
+                             portfolio %in% 3 ~ "S&P 500",
+                             TRUE ~ as.character(portfolio)))
 
 ```
+
 
 ## Visualisierung
 
@@ -105,7 +122,7 @@ portfolio_growth_monthly_multi %>%
     geom_line(size = 2) +
     labs(title = "Portfolio Growth",
          subtitle = "Comparing Multiple Portfolios",
-         caption = "Portfolio 3 is a Standout!",
+         caption = "Portfolio 2 is a Standout!",
          x = "", y = "Portfolio Value",
          color = "Portfolio") +
     geom_smooth(method = "loess") +

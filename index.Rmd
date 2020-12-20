@@ -3,6 +3,5 @@ title: "Geld und Geschichte"
 date: "Letztes Update: `r format(Sys.time(), '%d.%m.%Y')`"
 ---
 
-## Überblick
 
-## Idee
+Der Report besteht aus einer Analyse von Aktien, Indizes und ETFs mit dem R-Package `tidyquant`. Bei dem Aufbau der Seite wurde sich an dem Projekt von [business-science](https://github.com/business-science/tidyquant) orientiert. 

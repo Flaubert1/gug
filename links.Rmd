@@ -1,0 +1,8 @@
+---
+title: "Links und Quellen"
+date: "`r Sys.Date()`"
+---
+
+## Technische Analysen von Finanzdaten mit R
+
+https://business-science.github.io/tidyquant/ 
