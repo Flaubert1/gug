@@ -5,4 +5,22 @@ date: "`r Sys.Date()`"
 
 ## Technische Analysen von Finanzdaten mit R
 
-https://business-science.github.io/tidyquant/ 
+-   [business-science](https://business-science.github.io/tidyquant/){.uri} ist eine GitHub-Website, die das Package `tidyquant` über Tutorials vorstellt. Es gibt ein [GitHub-Respositorium](https://github.com/business-science/tidyquant), wo der Code im Rmd-Format veröffentlicht ist.
+
+-   Der Blog [Of Dollars and Data](https://ofdollarsanddata.com) von Nick Maggiulli besteht aus Finanzanalysen, deren Daten mit R bearbeitet und visualisiert werden. Ein [GitHub-Repositorium](https://github.com/nmaggiulli/of-dollars-and-data) zeigt den Code.
+
+## Technische Analyse von Finanzdaten ohne R
+
+-   Der Blog [Four Pillar Freedom](https://fourpillarfreedom.com) analysiert vor alle Indizes wie den S&P 500. Die Analysen werden vom Autor Zach mit Excel erstellt.
+
+-   Der Blog [Justin Czyszczewski](https://justinczyszczewski.com) beinhaltet umfangreiche Analysen mit guten Visualisierungen, deren Code jedoch nicht veröffentlicht wird.
+
+-   [Net Interest](https://netinterest.substack.com) ist ein wöchentliche Newsletter mit interessanten Analysen.
+
+-   Der [Newsletter von Matt Levine](https://www.bloomberg.com/opinion/authors/ARbTQlRLRjE/matthew-s-levine) erklärt die Wall Street.
+
+## FIRE-Seiten ohne technische/statistische Analysen
+
+-   In Deutschland sehr beliebt ist [Frugalisten](https://frugalisten.de).
+
+-   [Finanzfluss](https://www.finanzfluss.de) bringt den Deutschen ETFs nahe und vertritt die Lehre 2/3 MSCI World und 1/3 MSCI Emerging Markets.
