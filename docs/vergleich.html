@@ -10,10 +10,11 @@
 
 
 
-<meta name="date" content="2020-12-09" />
+<meta name="date" content="2020-12-21" />
 
 <title>Return v Volatilität</title>
 
+<script src="site_libs/header-attrs-2.5/header-attrs.js"></script>
 <script src="site_libs/jquery-1.12.4/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
@@ -23,6 +24,8 @@
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
+<script src="site_libs/pagedtable-1.1/js/pagedtable.js"></script>
 <link href="site_libs/anchor-sections-1.0/anchor-sections.css" rel="stylesheet" />
 <script src="site_libs/anchor-sections-1.0/anchor-sections.js"></script>
 <script src="site_libs/htmlwidgets-1.5.2/htmlwidgets.js"></script>
@@ -299,7 +302,7 @@ $(document).ready(function () {
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Analyse
+    Analysen
      
     <span class="caret"></span>
   </a>
@@ -317,6 +320,9 @@ $(document).ready(function () {
       <a href="vergleich.html">Vergleich</a>
     </li>
   </ul>
+</li>
+<li>
+  <a href="links.html">Links</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -342,7 +348,7 @@ $(document).ready(function () {
 
 
 <h1 class="title toc-ignore">Return v Volatilität</h1>
-<h4 class="date">2020-12-09</h4>
+<h4 class="date">2020-12-21</h4>
 
 </div>
 
@@ -443,7 +449,7 @@ avg_return &lt;- avg_return %&gt;%
 datatable(avg_return)</code></pre>
 <div id="htmlwidget-163c465b1e7a119edff6" style="width:100%;height:auto;" class="datatables html-widget"></div>
 <script type="application/json" data-for="htmlwidget-163c465b1e7a119edff6">{"x":{"filter":"none","data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21"],["TSLA","SQ","NVDA","PYPL","AAPL","NFLX","TWTR","AMZN","MSFT","^NDX","FB","ATVI","^GSPC","URTH","ALV.DE","DTE.DE","EXSA.DE","^GDAXI","HEN3.DE","DBK.DE","LHA.DE"],[0.004,0.0031,0.0019,0.0018,0.0017,0.0016,0.0015,0.0015,0.0015,0.001,0.0009,0.0006,0.0005,0.0005,0.0004,0.0004,0.0002,0.0001,-0.0001,-0.0003,-0.001],[0.0430392362325333,0.0372870179123373,0.0316391226516804,0.0246433878563554,0.0221951307658741,0.0270185919243417,0.0344771070230559,0.02106516092983,0.0204790887948213,0.016851239900538,0.0241181652414694,0.023625197672958,0.014853004802361,0.0139821972785941,0.0179845502713514,0.0131923379380387,0.0122317133294127,0.0142791571219307,0.0143748055932117,0.0273805316358333,0.0288851673867615],["Watchlist","Einzelaktien","Einzelaktien","Watchlist","Einzelaktien","Watchlist","Einzelaktien","Einzelaktien","Watchlist","Indizes","Watchlist","Einzelaktien","Indizes","Indizes","Watchlist","Einzelaktien","Einzelaktien","Indizes","Watchlist","Einzelaktien","Watchlist"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>symbol<\/th>\n      <th>avg_return<\/th>\n      <th>Volatility<\/th>\n      <th>Indicator<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"className":"dt-right","targets":[2,3]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
-<p>Der Plot zeigt den durchschnittlichen täglichen Return im Verhältnis zur Volatilität der Werte für den Zeitraum 2017-12-31 bis 2020-12-09.</p>
+<p>Der Plot zeigt den durchschnittlichen täglichen Return im Verhältnis zur Volatilität der Werte für den Zeitraum 2017-12-31 bis 2020-12-21.</p>
 <pre class="r"><code>plot = avg_return %&gt;% ggplot(aes(avg_return, Volatility, color = Indicator))+
   geom_point()+
 #  geom_text(aes(label = symbol), size = 3)+
@@ -458,7 +464,7 @@ plot</code></pre>
 <p><img src="vergleich_files/figure-html/unnamed-chunk-11-1.png" width="95%" style="display: block; margin: auto;" /></p>
 <div id="vergleich-von-return-und-volatilität-über-zwei-zeiträume" class="section level3">
 <h3>Vergleich von Return und Volatilität über zwei Zeiträume</h3>
-<p>Im nächsten Schritt wird die zweite Datenreihe (Zeitraum 2020-02-09 bis 2020-12-09) für den Vergleich ausgewertet. Es wird ebenfalls der durchschnittliche Return und die Volatilität gebildet.</p>
+<p>Im nächsten Schritt wird die zweite Datenreihe (Zeitraum 2020-02-21 bis 2020-12-21) für den Vergleich ausgewertet. Es wird ebenfalls der durchschnittliche Return und die Volatilität gebildet.</p>
 <pre class="r"><code># Zweite Datenreihe für Vergleich
 
 vergleich_daily_sector &lt;- vergleich_df %&gt;% group_by(symbol) %&gt;% 
